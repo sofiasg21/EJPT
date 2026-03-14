@@ -281,6 +281,9 @@ get archivo.txt
 Enumeración SMB:
 
 enum4linux IP
+Y SI NO ME SALEN LOS USUARIOS CON ENUM4LINUX? 
+crackmapexec smb IP --users
+
 
 Buscar exploit:
 
